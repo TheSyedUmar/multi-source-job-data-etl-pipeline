@@ -5,3 +5,4 @@ __pycache__/
 localstack-data/
 test_sample.txt
 *.json
+*.parquet
