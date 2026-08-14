@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 localstack-data/
 test_sample.txt
+*.json
