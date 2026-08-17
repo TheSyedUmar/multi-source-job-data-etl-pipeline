@@ -70,6 +70,7 @@ Each source has a completely different schema (e.g. RemoteOK uses `position`, Ar
 
 Cleaned data is saved as Parquet and uploaded separately:
 s3://bucket/processed/date=2026-08-17/processed\_jobs\_2026-08-17.parquet
+
 !\[S3 processed folder structure](screenshots/s3-processed-folder.png)
 
 
@@ -186,10 +187,4 @@ uvicorn main:app --reload
 \- ETL/ELT pattern with proper raw/processed data lake separation on S3
 
 \- Structured data loading and API exposure
-
-
-
-\---
-
-Built by \[TheSyedUmar](https://github.com/TheSyedUmar)
 
