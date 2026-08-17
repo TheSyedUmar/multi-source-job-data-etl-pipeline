@@ -16,7 +16,6 @@ Job listings are scattered across different websites, each with its own data for
 
 \## Architecture
 Scrape (2 sources) → Land raw in S3 → Transform \& clean → Land processed in S3 → Load to database → Serve via API
-
 Raw data is always landed in S3 before any cleaning happens. This is the core ETL/ELT design decision in this project: if the transform logic has a bug, it can be re-run against the untouched raw data without re-scraping the source websites.
 
 
@@ -26,6 +25,8 @@ Raw data is always landed in S3 before any cleaning happens. This is the core ET
 
 
 \### 1. Scrape (`scraper.py`)
+
+
 
 Fetches job listings from two sources:
 
@@ -37,12 +38,19 @@ Fetches job listings from two sources:
 
 \### 2. Land raw data in S3 (`s3\_writer.py`)
 
+
+
 Raw JSON is uploaded to S3, partitioned by source and date:
 s3://bucket/raw/source=remoteok/date=2026-08-17/remoteok\_2026-08-17.json
 
 s3://bucket/raw/source=arbeitnow/date=2026-08-17/arbeitnow\_2026-08-17.json
+\*\*S3 raw folder, partitioned by source:\*\*
 
 !\[S3 raw folder structure](screenshots/s3-raw-folder.png)
+
+
+
+\*\*Inside a date partition:\*\*
 
 !\[S3 raw file detail](screenshots/s3-raw-file-detail.png)
 
@@ -50,7 +58,11 @@ s3://bucket/raw/source=arbeitnow/date=2026-08-17/arbeitnow\_2026-08-17.json
 
 \### 3. Transform (`transform.py`)
 
+
+
 Each source has a completely different schema (e.g. RemoteOK uses `position`, Arbeitnow uses `title`). This stage:
+
+
 
 \- Normalizes both sources into one common schema
 
@@ -62,13 +74,17 @@ Each source has a completely different schema (e.g. RemoteOK uses `position`, Ar
 
 
 
+\*\*Pipeline execution output:\*\*
+
 !\[Transform and load output](screenshots/transform-output.png)
 
 
 
 \### 4. Land processed data in S3
 
-Cleaned data is saved as Parquet and uploaded separately:
+
+
+Cleaned data is saved as Parquet and uploaded separately from raw data:
 s3://bucket/processed/date=2026-08-17/processed\_jobs\_2026-08-17.parquet
 
 !\[S3 processed folder structure](screenshots/s3-processed-folder.png)
@@ -77,16 +93,22 @@ s3://bucket/processed/date=2026-08-17/processed\_jobs\_2026-08-17.parquet
 
 \### 5. Load to database (`load\_to\_db.py`)
 
+
+
 Cleaned data is loaded into a SQLite database for fast querying.
 
 
 
 \### 6. Serve via API (`main.py`)
 
+
+
 A FastAPI service exposes the cleaned data with filterable endpoints:
 GET /jobs?location=Remote
 
 GET /jobs?company=Google
+
+\*\*Sample API response:\*\*
 
 !\[API response](screenshots/api-response.png)
 
@@ -96,17 +118,19 @@ GET /jobs?company=Google
 
 
 
-\- Python — core pipeline logic
+| Layer | Tools |
 
-\- requests / BeautifulSoup — data ingestion
+|---|---|
 
-\- pandas — data cleaning and normalization
+| Ingestion | Python, requests, BeautifulSoup |
 
-\- AWS S3 (boto3) — data lake storage, raw/processed zone separation
+| Transformation | pandas |
 
-\- SQLite (SQLAlchemy) — structured storage for queries
+| Storage (data lake) | AWS S3, boto3 |
 
-\- FastAPI — REST API layer
+| Storage (queryable) | SQLite, SQLAlchemy |
+
+| API | FastAPI |
 
 
 
@@ -170,7 +194,7 @@ uvicorn main:app --reload
 
 \- Deduplication matches on exact URL only — near-duplicate reposts of the same role under different URLs are not currently caught
 
-\- Two sources are used; a third, HTML-based source (rather than JSON API) would further demonstrate parsing of unstructured data
+\- Two sources are used; a third, HTML-based source (rather than a JSON API) would further demonstrate parsing of unstructured data
 
 \- No orchestration layer (e.g. Airflow) — pipeline stages are run sequentially via individual scripts
 
@@ -187,4 +211,5 @@ uvicorn main:app --reload
 \- ETL/ELT pattern with proper raw/processed data lake separation on S3
 
 \- Structured data loading and API exposure
+
 
