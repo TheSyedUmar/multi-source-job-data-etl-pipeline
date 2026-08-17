@@ -42,7 +42,13 @@ s3://bucket/raw/source=remoteok/date=2026-08-17/remoteok\_2026-08-17.json
 
 s3://bucket/raw/source=arbeitnow/date=2026-08-17/arbeitnow\_2026-08-17.json
 
-### 3. Transform (`transform.py`)
+!\[S3 raw folder structure](screenshots/s3-raw-folder.png)
+
+!\[S3 raw file detail](screenshots/s3-raw-file-detail.png)
+
+
+
+\### 3. Transform (`transform.py`)
 
 Each source has a completely different schema (e.g. RemoteOK uses `position`, Arbeitnow uses `title`). This stage:
 
@@ -56,12 +62,19 @@ Each source has a completely different schema (e.g. RemoteOK uses `position`, Ar
 
 
 
+!\[Transform and load output](screenshots/transform-output.png)
+
+
+
 \### 4. Land processed data in S3
 
 Cleaned data is saved as Parquet and uploaded separately:
 s3://bucket/processed/date=2026-08-17/processed\_jobs\_2026-08-17.parquet
+!\[S3 processed folder structure](screenshots/s3-processed-folder.png)
 
-### 5. Load to database (`load\_to\_db.py`)
+
+
+\### 5. Load to database (`load\_to\_db.py`)
 
 Cleaned data is loaded into a SQLite database for fast querying.
 
@@ -74,7 +87,11 @@ GET /jobs?location=Remote
 
 GET /jobs?company=Google
 
-## Tech stack
+!\[API response](screenshots/api-response.png)
+
+
+
+\## Tech stack
 
 
 
@@ -138,6 +155,14 @@ uvicorn main:app --reload
 
 
 
+\## Commit history
+
+
+
+!\[Commit history](screenshots/commit-history.png)
+
+
+
 \## Known limitations
 
 
@@ -161,4 +186,10 @@ uvicorn main:app --reload
 \- ETL/ELT pattern with proper raw/processed data lake separation on S3
 
 \- Structured data loading and API exposure
+
+
+
+\---
+
+Built by \[TheSyedUmar](https://github.com/TheSyedUmar)
 
